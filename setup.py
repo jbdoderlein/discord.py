@@ -51,6 +51,7 @@ packages = [
     'discord.ui',
     'discord.webhook',
     'discord.ext.commands',
+    'discord.ext.slash',
     'discord.ext.tasks',
 ]
 
