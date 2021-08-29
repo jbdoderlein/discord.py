@@ -531,12 +531,9 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
             ctx.bot.dispatch('command_error', ctx, error)
 
     async def transform(self, ctx: Context, param: inspect.Parameter) -> Any:
-        required = param.default is param.empty
+        #TODO : Raise proper Exception when dev has wrong arguments
         converter = get_converter(param)
-        consume_rest_is_special = param.kind == param.KEYWORD_ONLY and not self.rest_is_raw
-        print(f"transform param {param}, with {param.kind}, required? {required}")
         matchs = [arg for arg in ctx.interaction.data['options'] if arg["name"] == param.name]
-        print("corellation with interaction :", matchs)
         if len(matchs) == 1:
             return await run_converters(ctx, converter, matchs[0]['value'], param)  # type: ignore
         else:
