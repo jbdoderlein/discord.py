@@ -1006,7 +1006,13 @@ class Greedy(List[T]):
 
 
 def _convert_to_bool(argument: str) -> bool:
-    return argument
+    lowered = argument.lower()
+    if lowered in ('yes', 'y', 'true', 't', '1', 'enable', 'on'):
+        return True
+    elif lowered in ('no', 'n', 'false', 'f', '0', 'disable', 'off'):
+        return False
+    else:
+        raise BadBoolArgument(lowered)
 
 
 def get_converter(param: inspect.Parameter) -> Any:
