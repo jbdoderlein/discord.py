@@ -395,7 +395,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         except CommandError as e:
             await cmd.on_help_command_error(self, e)
 
-    async def reply(self, content: Optional[str] = None, ephemeral: Optional[bool] = False, **kwargs: Any) -> Message:
-        return await self.interaction.response.send_message(content, ephemeral=ephemeral)
+    async def reply(self, content: Optional[str] = None, ephemeral: Optional[bool] = False, **kwargs: Any) -> Interaction:
+        return await self.interaction.response.send_message(content, ephemeral=ephemeral, **kwargs)
 
 

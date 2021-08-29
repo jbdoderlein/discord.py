@@ -49,7 +49,7 @@ import discord
 
 from .errors import *
 from .cooldowns import Cooldown, BucketType, CooldownMapping, MaxConcurrency, DynamicCooldownMapping
-from .converter import run_converters, get_converter, Greedy
+from .converter import run_converters, get_converter
 from ._types import _BaseCommand
 from .cog import Cog
 from .context import Context
@@ -137,8 +137,6 @@ def get_signature_parameters(function: Callable[..., Any], globalns: Dict[str, A
             continue
 
         annotation = eval_annotation(annotation, globalns, globalns, cache)
-        if annotation is Greedy:
-            raise TypeError('Unparameterized Greedy[...] is disallowed in signature.')
 
         params[name] = parameter.replace(annotation=annotation)
 
@@ -637,7 +635,6 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
         args = ctx.args
         kwargs = ctx.kwargs
 
-        data = ctx.interaction.data['options']
         iterator = iter(self.params.items())
 
         if self.cog is not None:
@@ -681,8 +678,6 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
                     except RuntimeError:
                         break
             """
-        if not self.ignore_extra and not view.eof:
-            raise TooManyArguments('Too many arguments passed to ' + self.qualified_name)
 
     async def call_before_hooks(self, ctx: Context) -> None:
         # now that we're done preparing we can call the pre-command hooks
@@ -966,14 +961,12 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
 
         result = []
         for name, param in params.items():
-            greedy = isinstance(param.annotation, Greedy)
+
             optional = False  # postpone evaluation of if it's an optional argument
 
-            # for typing.Literal[...], typing.Optional[typing.Literal[...]], and Greedy[typing.Literal[...]], the
-            # parameter signature is a literal list of it's values
-            annotation = param.annotation.converter if greedy else param.annotation
+            annotation = param.annotation.converter
             origin = getattr(annotation, '__origin__', None)
-            if not greedy and origin is Union:
+            if origin is Union:
                 none_cls = type(None)
                 union_args = annotation.__args__
                 optional = union_args[-1] is none_cls
@@ -988,8 +981,7 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
                 # do [name] since [name=None] or [name=] are not exactly useful for the user.
                 should_print = param.default if isinstance(param.default, str) else param.default is not None
                 if should_print:
-                    result.append(f'[{name}={param.default}]' if not greedy else
-                                  f'[{name}={param.default}]...')
+                    result.append(f'[{name}={param.default}]')
                     continue
                 else:
                     result.append(f'[{name}]')
@@ -999,8 +991,6 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
                     result.append(f'<{name}...>')
                 else:
                     result.append(f'[{name}...]')
-            elif greedy:
-                result.append(f'[{name}]...')
             elif optional:
                 result.append(f'[{name}]')
             else:
@@ -2136,7 +2126,7 @@ def cooldown(rate: int, per: float, type: Union[BucketType, Callable[[Message], 
 
 
 def dynamic_cooldown(cooldown: Union[BucketType, Callable[[Message], Any]], type: BucketType = BucketType.default) -> \
-Callable[[T], T]:
+        Callable[[T], T]:
     """A decorator that adds a dynamic cooldown to a :class:`.Command`
 
     This differs from :func:`.cooldown` in that it takes a function that

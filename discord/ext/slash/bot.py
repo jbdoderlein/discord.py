@@ -38,7 +38,7 @@ from typing import Any, Callable, Mapping, List, Dict, TYPE_CHECKING, Optional, 
 import discord
 
 from .core import GroupMixin
-from .view import StringView
+from discord.enums import InteractionType
 from .context import Context
 from . import errors
 from .help import HelpCommand, DefaultHelpCommand
@@ -916,8 +916,6 @@ class BotBase(GroupMixin):
         ctx: :class:`.Context`
             The invocation context to invoke.
         """
-        print("Info sur la command")
-        print(f"Params : {ctx.command.params}, signature : {ctx.command.signature}")
         if ctx.command is not None:
             self.dispatch('command', ctx)
             try:
@@ -960,8 +958,8 @@ class BotBase(GroupMixin):
         await self.invoke(ctx)
 
     async def on_interaction(self, interaction):
-        print("On a une interaction", interaction.data)
-        await self.process_commands(interaction)
+        if interaction.type == InteractionType.application_command:
+            await self.process_commands(interaction)
 
 class Slash(BotBase, discord.Client):
     """Represents a discord bot.

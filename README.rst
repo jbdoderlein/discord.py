@@ -1,4 +1,4 @@
-discord.py
+discord.py - jbdod Slash Commands implementation
 ==========
 
 .. image:: https://discord.com/api/guilds/336642139381301249/embed.png
@@ -17,6 +17,11 @@ The Future of discord.py
 --------------------------
 
 Please read the `gist <https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1>`_ for the future of this project. It's been a good one.
+
+New feature
+--------------------------
+
+Add a framework for slash command, similar to the discord.ext.commands framework
 
 Key Features
 -------------
