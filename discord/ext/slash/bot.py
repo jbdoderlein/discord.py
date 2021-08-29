@@ -894,7 +894,6 @@ class BotBase(GroupMixin):
             The invocation context. The type of this can change via the
             ``cls`` parameter.
         """
-        print("Context Finder")
 
         ctx = cls(bot=self, view=interaction.data['name'], interaction=interaction)
 
@@ -902,9 +901,7 @@ class BotBase(GroupMixin):
             return ctx
 
         invoker = interaction.data['name']
-        print("invoker", invoker)
         ctx.invoked_with = invoker
-        print("all commands :", self.all_commands)
         ctx.command = self.all_commands.get(invoker)
         return ctx
 
@@ -919,7 +916,8 @@ class BotBase(GroupMixin):
         ctx: :class:`.Context`
             The invocation context to invoke.
         """
-        print("on vient de se faire dispatch avec ", ctx.command)
+        print("Info sur la command")
+        print(f"Params : {ctx.command.params}, signature : {ctx.command.signature}")
         if ctx.command is not None:
             self.dispatch('command', ctx)
             try:
@@ -959,7 +957,6 @@ class BotBase(GroupMixin):
         """
 
         ctx = await self.get_context(interaction)
-        print("Le context, ", ctx)
         await self.invoke(ctx)
 
     async def on_interaction(self, interaction):
